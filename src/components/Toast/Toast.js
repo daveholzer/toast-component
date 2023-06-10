@@ -10,26 +10,50 @@ import {
 import VisuallyHidden from '../VisuallyHidden';
 
 import styles from './Toast.module.css';
+import { ToastContext } from '../ToastProvider/ToastProvider';
 
-const ICONS_BY_VARIANT = {
-  notice: Info,
-  warning: AlertTriangle,
-  success: CheckCircle,
-  error: AlertOctagon,
+export const VARIANT_INFO = {
+  notice: {
+    styles: styles.notice,
+    icon: Info,
+  },
+  warning: {
+    styles: styles.warning,
+    icon: AlertTriangle,
+  },
+  success: {
+    styles: styles.success,
+    icon: CheckCircle,
+  },
+  error: {
+    styles: styles.error,
+    icon: AlertOctagon,
+  },
 };
+export const DEFAULT_VARIANT = 'notice';
 
-function Toast() {
+
+function Toast({id, variant, message}) {
+  const { closeToast } = React.useContext(ToastContext);
+
+  if (!Object.keys(VARIANT_INFO).includes(variant)) {
+    throw new Error(`Unknown variant provided ${variant}`)
+  }
+
+  const Icon = VARIANT_INFO[variant].icon;
+  const CN = VARIANT_INFO[variant].styles;
+
   return (
-    <div className={`${styles.toast} ${styles.notice}`}>
+    <div className={`${styles.toast} ${CN}`}>
       <div className={styles.iconContainer}>
-        <Info size={24} />
+        <Icon size={24} />
       </div>
       <p className={styles.content}>
-        16 photos have been uploaded
+        {message}
       </p>
-      <button className={styles.closeButton}>
+      <VisuallyHidden>Dismiss message</VisuallyHidden>
+      <button className={styles.closeButton} onClick={() => closeToast(id)} aria-label='Dismiss message' aria-live='off'>
         <X size={24} />
-        <VisuallyHidden>Dismiss message</VisuallyHidden>
       </button>
     </div>
   );

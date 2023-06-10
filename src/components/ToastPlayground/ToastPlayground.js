@@ -1,20 +1,42 @@
 import React from 'react';
 
 import Button from '../Button';
-
+import ToastShelf from '../ToastShelf';
+import { ToastContext } from '../ToastProvider';
+import { VARIANT_INFO, DEFAULT_VARIANT } from '../Toast';
 import styles from './ToastPlayground.module.css';
 
-const VARIANT_OPTIONS = ['notice', 'warning', 'success', 'error'];
+const DEFAULT_MESSAGE = '';
 
 function ToastPlayground() {
+  const [variant, setVariant] = React.useState(DEFAULT_VARIANT);
+  const [message, setMessage] = React.useState(DEFAULT_MESSAGE);
+
+  const  {addNewToast}  = React.useContext(ToastContext);
+
+  const addToast = (event) => {
+    event.preventDefault();
+
+    addNewToast({
+      variant,
+      message,
+    })
+
+    setVariant(DEFAULT_VARIANT);
+    setMessage(DEFAULT_MESSAGE);   
+  }
+
   return (
-    <div className={styles.wrapper}>
+
+    <form className={styles.wrapper} onSubmit={addToast}>
       <header>
         <img alt="Cute toast mascot" src="/toast.png" />
         <h1>Toast Playground</h1>
       </header>
 
       <div className={styles.controlsWrapper}>
+        <ToastShelf  />
+
         <div className={styles.row}>
           <label
             htmlFor="message"
@@ -24,7 +46,7 @@ function ToastPlayground() {
             Message
           </label>
           <div className={styles.inputWrapper}>
-            <textarea id="message" className={styles.messageInput} />
+            <textarea id="message" className={styles.messageInput} value={message} onChange={(event) => setMessage(event.target.value)} />
           </div>
         </div>
 
@@ -33,17 +55,23 @@ function ToastPlayground() {
           <div
             className={`${styles.inputWrapper} ${styles.radioWrapper}`}
           >
-            <label htmlFor="variant-notice">
-              <input
-                id="variant-notice"
-                type="radio"
-                name="variant"
-                value="notice"
+            {Object.keys(VARIANT_INFO).map(option => {
+              return (
+                <React.Fragment key={option}>
+                  <label htmlFor={`variant-${option}`}>
+                  <input
+                    id={`variant-${option}`}
+                    type="radio"
+                    name="variant"
+                    value={variant}
+                    checked={option===variant}
+                    onChange={() => setVariant(option)}
               />
-              notice
-            </label>
-
-            {/* TODO Other Variant radio buttons here */}
+                {option}
+              </label>
+            </React.Fragment>
+              )
+            })}
           </div>
         </div>
 
@@ -56,7 +84,7 @@ function ToastPlayground() {
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
 
